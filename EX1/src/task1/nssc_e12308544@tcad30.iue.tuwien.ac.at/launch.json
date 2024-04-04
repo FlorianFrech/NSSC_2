@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug MPI Application",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/solverMPI",
+            "args": ["1D", "test", "6", "100", "1.0", "2.0"], // Adjust arguments as needed
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Compile MPI Application" // Adjust task name if needed
+        }
+    ]
+}

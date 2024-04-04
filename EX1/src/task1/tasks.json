@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile MPI Application",
+            "type": "shell",
+            "command": "mpic++",
+            "args": [
+                "main1.cpp",
+                "-o",
+                "solverMPI",
+                "-std=c++17",
+                "-O3",
+                "-march=native",
+                "-ffast-math"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ]
+}

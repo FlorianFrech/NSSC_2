@@ -6,6 +6,8 @@
 *.lo
 *.o
 *.obj
+*main
+*solverMPI
 
 # Precompiled Headers
 *.gch
@@ -30,3 +32,6 @@
 *.exe
 *.out
 *.app
+
+# Output files
+*.csv
