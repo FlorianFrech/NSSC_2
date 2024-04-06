@@ -142,8 +142,7 @@ std::vector<double> merge_subgrids(int num_proc, int pts_proc, int global_N, std
   int pts_proc_remainder = 0;
   int rows_proc_remainder = 0;
   if (has_remainder) {
-    int floor = global_N / num_proc;
-    rows_proc_remainder = global_N - floor * num_proc + 2;
+    rows_proc_remainder = global_N - (num_proc - 1) * (rows_proc-2) + 2;
     pts_proc_remainder = cols_proc * rows_proc_remainder;
     global_grid_recv[num_proc - 1].resize(pts_proc_remainder, 1.3);
   }
@@ -158,23 +157,9 @@ std::vector<double> merge_subgrids(int num_proc, int pts_proc, int global_N, std
     MPI_Status status;
     if (has_remainder && i == num_proc - 1) {
       MPI_Recv(global_grid_recv[i].data(), pts_proc_remainder, MPI_DOUBLE, i, i, comm_cart, &status);
-      std::cout << "Subgrid of process " << i << " received:" << std::endl;
-      for (int k = 0; k < rows_proc; ++k) {
-        for (int j = 0; j < cols_proc; ++j) {
-          std::cout << global_grid_recv[i][j + k * cols_proc] << " ";
-        }
-        std::cout << std::endl;
-      }
     }
     else {
       MPI_Recv(global_grid_recv[i].data(), pts_proc, MPI_DOUBLE, i, i, comm_cart, &status);
-      std::cout << "Subgrid of process " << i << " received:" << std::endl;
-      for (int k = 0; k < rows_proc; ++k) {
-        for (int j = 0; j < cols_proc; ++j) {
-          std::cout << global_grid_recv[i][j + k * cols_proc] << " ";
-        }
-        std::cout << std::endl;
-      }
     }
   }
 
@@ -186,54 +171,60 @@ std::vector<double> merge_subgrids(int num_proc, int pts_proc, int global_N, std
   else {
     global_grid_size = num_proc * pts_proc;
   }
-  std::vector<double> global_grid (global_grid_size, 0.0);
-  std::cout << "\nGlobal grid with ghost layers:" << std::endl;
-  for (int k = 0; k < num_proc; ++k) {
-    int start = k * pts_proc;
-    if (has_remainder && k == num_proc - 1) {
-      std::cout << "Process: " << k << std::endl;
-      for (int i = 0; i < rows_proc_remainder; ++i) {
-        for (int j = 0; j < cols_proc; ++j) {
-          global_grid[start + i * cols_proc + j] = global_grid_recv[k][i*cols_proc + j];
-          std::cout << global_grid[start + i * cols_proc + j] << " ";
-        }
-        std::cout << std::endl;
+  std::vector<double> global_grid (global_grid_size, 3.0);
+  for (int i = 0; i < num_proc; ++i) {
+    if (has_remainder && i == num_proc - 1) {
+      for (int j = 0; j < pts_proc_remainder; ++j) {
+        global_grid[i * pts_proc + j] = global_grid_recv[i][j];
       }
     }
     else {
-      std::cout << "Process: " << k << std::endl;
-      for (int i = 0; i < rows_proc + 1; ++i) {
-        for (int j = 0; j < cols_proc; ++j) {
-        global_grid[start + i * cols_proc + j] = global_grid_recv[i][i * cols_proc + j];
-        std::cout << global_grid[start + i * cols_proc + j] << " ";
-        }
-        std::cout << std::endl;
+      for (int j = 0; j < pts_proc; ++j) {
+      global_grid[i * pts_proc + j] = global_grid_recv[i][j];
       }
     }
   }
+
+  std::cout << "written to gloabal grid" << std::endl;
   
   // Remove ghost layers
-  std::vector<double> global_grid_cleaned(global_N * global_N, 0.0);
+  std::vector<double> global_grid_cleaned(global_N * global_N, 6.0);
   int p = 0;
   for (int k = 0; k < num_proc; ++k) {
     int start = k * pts_proc;
     if (has_remainder && k == num_proc - 1) {
-      for (int i = 1; i < rows_proc_remainder - 1; ++i) {
+      for (int i = 1; i < rows_proc_remainder-1; ++i) {
         for (int j = 1; j < cols_proc - 1; ++j) {
+          std::cout << global_grid_cleaned[p] << " " << global_grid[start + j + i * cols_proc] << " ";
           global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
           p++;
+          std::cout << global_grid_cleaned[p] << ", ";
         }
+        std::cout << std::endl;
       }
     }
     else {
-      for (int i = 1; i < rows_proc -1; ++i) {
+      std::cout << "Process" << k << std::endl;
+      for (int i = 1; i < rows_proc - 1; ++i) {
         for (int j = 1; j < cols_proc - 1; ++j) {
           global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
           p++;
+          std::cout << global_grid_cleaned[p] << " ";
         }
+        std::cout << std::endl;
       }
     }
   }
+
+  // Print global grid cleaned
+  std::cout << "Global grid cleaned:" << std::endl;
+  for (int i = 0; i < global_N; ++i) {
+    for (int j = 0; j < global_N; ++j) {
+      std::cout << global_grid_cleaned[j + i * global_N] << " ";
+    }
+    std::cout << std::endl;
+  }
+
   return global_grid_cleaned;
 }
 
@@ -302,17 +293,22 @@ int main(int argc, char *argv[]) try {
     int rows_proc, cols_proc, pts_proc;
     bool has_remainder = N % num_proc != 0;
     // Adapt number of rows for last process
-    if (has_remainder && my_rank == num_proc - 1) {
-      int floor = N / num_proc;
-      rows_proc = N - floor * num_proc + n_ghost_layers;
-      std::cout << "Process " << my_rank << " has only " << rows_proc - n_ghost_layers << " rows." << std::endl;
+    if (has_remainder) {
+      rows_proc = N / num_proc + 1;
+      if (my_rank == num_proc - 1) {
+        rows_proc = N - rows_proc * (num_proc-1);
+      }
     }
     else {
-      // Local process grid size with ghost layers
-      rows_proc = opts.N / num_proc + n_ghost_layers;
-      if (my_rank == 0)
-        std::cout << "Process " << my_rank << " has " << rows_proc  << " rows." << std::endl;
+      rows_proc = N / num_proc ;
     }
+    if (my_rank == num_proc - 1 && has_remainder) {
+      std::cout << "Last process has " << rows_proc << " rows." << std::endl;
+    }
+    if (my_rank == 0) {
+      std::cout << "Processes have " << rows_proc << " rows." << std::endl;
+    }
+    rows_proc += n_ghost_layers;
     cols_proc = opts.N + n_ghost_layers;
     pts_proc = rows_proc * cols_proc;
 
@@ -371,22 +367,10 @@ int main(int argc, char *argv[]) try {
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    for (int k = 0; k < num_proc; ++k) {
-      if (my_rank == k) {
-        std::cout << "Subgrid of process " << k << " :" << std::endl;
-        for (int i = 0; i < rows_proc + 1; ++i) {
-          for (int j = 0; j < cols_proc; ++j) {
-            std::cout << proc_grid_2[j + i * cols_proc] << " ";
-          }
-          std::cout << std::endl;
-        }
-      }
-      MPI_Barrier(comm_cart);
-    }
-
     // Send grid values to master process
     if (cart_rank != 0) {
       MPI_Send(proc_grid_2.data(), pts_proc, MPI_DOUBLE, 0, cart_rank, comm_cart);
+      std::cout << "Process " << my_rank << " sent grid to process 0." << std::endl;
     }
 
     // Process 0 receives grid values and writes to file
@@ -405,10 +389,10 @@ int main(int argc, char *argv[]) try {
 
     // Process 0 receives final grid values and calculates norms
     if (cart_rank == 0) {
-      //std::vector<double> final_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_remainder);
+      std::vector<double> final_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_remainder);
       
-      //std::cout << "\tnorm2\t= " << norm2(final_grid, opts.N) << std::endl;
-      //std::cout << "\tnormInf\t= " << normInf(final_grid, opts.N) << std::endl;
+      std::cout << "\tnorm2\t= " << norm2(final_grid, opts.N) << std::endl;
+      std::cout << "\tnormInf\t= " << normInf(final_grid, opts.N) << std::endl;
       std::cout << "\ttime\t= " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
     }
 
