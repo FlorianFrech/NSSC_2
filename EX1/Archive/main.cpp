@@ -1,6 +1,7 @@
-// mpic++ main2.cpp -std=c++17 -O3 -Wall -pedantic -march=native -ffast-math -o solverMPI
-// mpirun -np 3 --oversubscribe ./solverMPI 1D test 250 100 1.0 2.0
+// mpic++ main.cpp -std=c++17 -O3 -Wall -pedantic -march=native -ffast-math -o solverMPI
+// mpirun -np 3 --oversubscribe ./solverMPI 2D test 6 100 1.0 2.0
 
+#include <array>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -53,7 +54,7 @@ auto parse(int argc, char *argv[]) {
 
 } // namespace program_options
 
-void jacobi_iteration(int N, int rows, int cols, int num_procs, int my_rank, std::vector<double> &proc_grid_old, std::vector<double> &proc_grid_new, bool residual = false) {
+void jacobi_iteration(int N, int rows, int cols, int num_procs, std::vector<double> &proc_grid_old, std::vector<double> &proc_grid_new, bool residual = false) {
   auto h = 1.0 / (N - 1);
   auto h2 = h * h;
   // all interior points
@@ -104,16 +105,16 @@ void jacobi_iteration(int N, int rows, int cols, int num_procs, int my_rank, std
 } 
 
 /*Set Dirichlet Boundary conditions on boundary grid points*/
-void initialize_proc_grid(std::vector<double> &proc_grid, int rows, int cols, double fix_east, double fix_west) {
+void initialize_proc_grid(std::vector<double> &proc_grid, int rows, int cols, double fix_east, double fix_west, int cart_coords[2], int dims[2]) {
     // Skip first and last rows (= ghost layers)
     for (int i = 1; i < rows-1; ++i) {
         for (int j = 0; j < cols; ++j) {
             // West = 2nd column
-            if (j == 1) {
+            if (j == 1 && cart_coords[0] == 0) { // && cart_coords[0] == 0
                 proc_grid[j + i * cols] = fix_west;
             }
             // East = 2nd last column
-            if (j == cols - 2) {
+            if (j == cols - 2 && cart_coords[0] == dims[0] - 1) { // && cart_coords[0] == dims[0] - 1
                 proc_grid[j + i * cols] = fix_east;
             }
         }
@@ -233,6 +234,16 @@ double normInf(const std::vector<double> &x, int N) {
   return max;
 }
 
+/*Print process grid*/
+void print_proc_grid(const std::vector<double> &x, int rows, int cols) {
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < cols; ++j) {
+      std::cout << x[j + i * cols] << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
 /*Main function*/
 int main(int argc, char *argv[]) try {
     // parse command line arguments
@@ -241,104 +252,231 @@ int main(int argc, char *argv[]) try {
     // Initialize MPI
     MPI_Init(&argc, &argv);
 
+    // Get number of MPI Processors and rank
     int num_proc, my_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
     if (my_rank == 0) {
-      std::cout << "Num_Procs: " << num_proc << "" << std::endl;
-      std::cout << "N: " << opts.N << std::endl;
-      std::cout << "Iterations: " << opts.iters << std::endl;
-      //opts.print();
+      std::cout << "total number of MPI processes = " << num_proc << "" << std::endl;
+      opts.print();
+      std::cout << std::endl;
     }
 
-    // Create cartesian 1D topology
+    // Create cartesian topology
     int ndims = opts.mpi_mode;
-    int dims[ndims];
-    dims[0] = num_proc;
+    int dims[2]; // dims[0] = rows / y-direction, dims[1] = cols / x-direction
+    std::array<int, 2> proc_dims = {0, 0};
+    if (ndims == 1) {
+      dims[0] = num_proc;
+      dims[1] = 1;
+    }
+    else {
+      // Check if num_proc is a prime number
+      bool is_prime = true;
+      for (int i = 2; i < num_proc; ++i) {
+        if (num_proc % i == 0) {
+            is_prime = false;
+            break;
+        }
+        break;
+      }
+      if (is_prime) {
+          dims[0] = num_proc;
+          dims[1] = 1;
+      }
+      else {
+        // Find the best partition
+        MPI_Dims_create(num_proc, 2, std::data(proc_dims));
+        dims[0] = proc_dims[0];
+        dims[1] = proc_dims[1];
+      }
+    }
+    if (my_rank == 0) {
+      std::cout << "Processes along 1st dimension / y-direction: " << dims[0] << std::endl;
+      std::cout << "Processes along 2nd dimension / x-direction: " << dims[1] << std::endl;
+    }
+    
+    // Create cartesian 2D topology
     int periods = 0;
     int period_flags[ndims];
     period_flags[0] = 0;
-
+    period_flags[0] = 0;
     MPI_Comm comm_cart;
     MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, period_flags, periods, &comm_cart);
 
-    int cart_rank, cart_coords;
+    // Get rank in cartesian topology
+    int cart_rank, cart_coords[2];
     MPI_Comm_rank(comm_cart, &cart_rank);
-    MPI_Cart_coords(comm_cart, cart_rank, ndims, &cart_coords);
-
-    // Northern rank (my_rank + 1), southern rank (my_rank - 1)
+    
+    // Neighboring processes
+    // Northern rank (my_rank + 1), southern rank (my_rank - 1) - direction 0
     int northern_rank, southern_rank;
     MPI_Cart_shift(comm_cart, 0, 1, &southern_rank, &northern_rank);
+    // Western rank (my_rank - 1), eastern rank (my_rank + 1) - direction 1
+    int western_rank, eastern_rank;
+    MPI_Cart_shift(comm_cart, 1, 1, &western_rank, &eastern_rank);
 
+    // Get coordinates in cartesian topology
+    MPI_Cart_coords(comm_cart, cart_rank, ndims, cart_coords);
+    std::cout << "Process " << cart_rank << "\tcoords: " << cart_coords[0] << ", " << cart_coords[1] << std::endl;
+
+    // Calculate sizes of process grids
     int N = opts.N;
     int n_ghost_layers = 2;
     int rows_proc, cols_proc, pts_proc;
-    bool has_remainder = N % num_proc != 0;
-    // Adapt number of rows for last process
-    if (has_remainder) {
-      rows_proc = N / num_proc;
-      if (my_rank == num_proc - 1) {
-        rows_proc = N - rows_proc * (num_proc-1);
+
+    // Check if remainders for rows and columns required
+    bool rows_has_remainder = N % dims[0] != 0;
+    bool cols_has_remainder = N % dims[1] != 0;
+
+    // Adapt number of rows for procs in last row
+    if (rows_has_remainder) {
+      rows_proc = N / dims[0];
+      if (cart_coords[0] == dims[0] - 1) {
+        rows_proc = N - rows_proc * dims[0];
       }
     }
     else {
-      rows_proc = N / num_proc ;
+      rows_proc = N / dims[0] ;
     }
-    if (my_rank == num_proc - 1 && has_remainder) {
-      //std::cout << "Last process has " << rows_proc << " rows." << std::endl;
+    // Check if remainder for cols required
+    if (cols_has_remainder) {
+      cols_proc = N / dims[1];
+      if (cart_coords[1] == dims[1] - 1) {
+        cols_proc = N - cols_proc * dims[1];
+      }
     }
-    if (my_rank == 0) {
-      //std::cout << "Processes have " << rows_proc << " rows." << std::endl;
+    else {
+      cols_proc = N / dims[1] ;
     }
+    // Print the number of remainder rows / cols
+    if (cart_coords[0] == dims[0]-1 && cart_coords[1] == dims[1]-1) {
+      std::cout << "Last process has " << rows_proc << " rows and " << cols_proc << " cols." << std::endl;
+    }   
+
+    // Add ghostlayers and calculate number of points per proc
     rows_proc += n_ghost_layers;
-    cols_proc = opts.N + n_ghost_layers;
+    cols_proc = cols_proc + n_ghost_layers;
     pts_proc = rows_proc * cols_proc;
 
     // Initialize the grid as a contiguous vector
     std::vector<double> proc_grid_1(pts_proc, 0.0);
-    initialize_proc_grid(proc_grid_1, rows_proc, cols_proc, opts.fix_east, opts.fix_west);
+    initialize_proc_grid(proc_grid_1, rows_proc, cols_proc, opts.fix_east, opts.fix_west, cart_coords, dims);
     std::vector<double> proc_grid_2 = proc_grid_1;
 
-    // indices for boundary values
+    if(cart_coords[0] == 1) {
+      std::cout << "Coordinates: " << cart_coords[0] << ", " << cart_coords[1] << std::endl;
+      print_proc_grid(proc_grid_1, rows_proc, cols_proc);
+    }
+
+    // Indices for boundary values in proc grid vector
     int north_boundary_start = cols_proc * (rows_proc - 1);
     int south_boundary_start = cols_proc;
+    int west_boundary_start = 1;
+    int east_boundary_start = cols_proc - 2;
     
-    // Recieve boundary values in ghost layer
+    // Indices for recieving boundary values in ghost layer
     int south_ghost_start = 0; 
     int north_ghost_start = (rows_proc - 1) * cols_proc;
 
     // Number of entries to send and recieve - withouth west and east boundary values
-    int n = cols_proc;
+    int n_rows = cols_proc; // number of elements to send/recieve to/from northern and southern processes
+    int n_cols = rows_proc; // number of elements to send/recieve to/from western and eastern processes
 
+    // Initialize vectors to store western and eastern boundary values if dims[1] > 0
+    std::vector<double> send_western_boundary;
+    std::vector<double> send_eastern_boundary;
+    std::vector<double> receive_western_ghost;
+    std::vector<double> receive_eastern_ghost;
+    if(dims[1] > 0) {
+      send_western_boundary.resize(n_cols, 0.0);
+      send_eastern_boundary.resize(n_cols, 0.0);
+      receive_western_ghost.resize(n_cols, 0.0);
+      receive_eastern_ghost.resize(n_cols, 0.0);
+    }
+    
+    // Start timer
     auto start = std::chrono::high_resolution_clock::now();
 
     // Perform jacobi iterations
-    for (int iter = 0; iter <= opts.iters; ++iter) {
+    for (int iter = 0; iter < opts.iters; ++iter) {
       // perform Jacobi iteration
-      jacobi_iteration(opts.N, rows_proc, cols_proc, num_proc, my_rank, proc_grid_1, proc_grid_2);
+      jacobi_iteration(opts.N, rows_proc, cols_proc, num_proc, proc_grid_1, proc_grid_2);
+
+      // Print proc grid
+      if (cart_coords[0] == 0 && cart_coords[1] == 0) {
+        std::cout << "Iteration " << iter << ":" << std::endl;
+        std::cout << "Process " << cart_coords[0] << ", " << cart_coords[1] << " has grid:" << std::endl;
+        print_proc_grid(proc_grid_1, rows_proc, cols_proc);
+      }
+      MPI_Barrier(comm_cart);
+
+      // Extract west and east boundary values if dims[1] > 0
+      if (dims[1] > 1) {
+        for(int i = 0; i<n_cols; ++i) {
+          send_western_boundary[i] = proc_grid_2[i * cols_proc + west_boundary_start];
+          send_eastern_boundary[i] = proc_grid_2[i * cols_proc + east_boundary_start];
+        }
+      }
 
       // Send and recieve boundary values from neighboring processes
       std::vector<MPI_Request> requests(4, MPI_REQUEST_NULL);
-
-      // Send southern boundary - except for first process
-      if (cart_rank > 0) {
-        MPI_Isend(proc_grid_2.data() + south_boundary_start, n, MPI_DOUBLE, southern_rank, 0, comm_cart, &requests[0]);
+      if (dims[1] > 1) {
+        requests.resize(8, MPI_REQUEST_NULL);
       }
 
-      // Recieve in north ghost layer - except for last process
-      if (cart_rank < num_proc - 1) {
-        MPI_Irecv(proc_grid_2.data() + north_ghost_start, n, MPI_DOUBLE, northern_rank, 0, comm_cart, &requests[1]);
+      // Send and recieve rows
+      // Send southern boundary - except for processes in first row
+      if (cart_coords[0] > 0) {
+        MPI_Isend(proc_grid_2.data() + south_boundary_start, n_rows, MPI_DOUBLE, southern_rank, 0, comm_cart, &requests[0]);
       }
 
-      // Send northern boundary - except for last process
-      if (cart_rank < num_proc - 1) {
-        MPI_Isend(proc_grid_2.data() + north_boundary_start, n, MPI_DOUBLE, northern_rank, 0, comm_cart, &requests[2]);
+      // Recieve in north ghost layer - except processes in last row
+      if (cart_coords[0] < dims[0] - 1) {
+        MPI_Irecv(proc_grid_2.data() + north_ghost_start, n_rows, MPI_DOUBLE, northern_rank, 0, comm_cart, &requests[1]);
       }
 
-      // Recieve in south ghost layer - except for first process
-      if (cart_rank > 0) {
-        MPI_Irecv(proc_grid_2.data() + south_ghost_start, n, MPI_DOUBLE, southern_rank, 0, comm_cart, &requests[3]);
+      // Send northern boundary - except for processes in last row
+      if (cart_coords[0] < dims[0] - 1) {
+        MPI_Isend(proc_grid_2.data() + north_boundary_start, n_rows, MPI_DOUBLE, northern_rank, 0, comm_cart, &requests[2]);
+      }
+
+      // Recieve in south ghost layer - except for processes in first row
+      if (cart_coords[0] > 0) {
+        MPI_Irecv(proc_grid_2.data() + south_ghost_start, n_rows, MPI_DOUBLE, southern_rank, 0, comm_cart, &requests[3]);
+      }
+
+      // Send and recieve columns
+      if (dims[1] > 1) {
+        // Send western boundary - except for processes in first column
+        if (cart_coords[1] > 0) {
+          MPI_Isend(send_western_boundary.data(), n_cols, MPI_DOUBLE, western_rank, 0, comm_cart, &requests[4]);
+        }
+
+        // Recieve in east ghost layer - except for processes in last column
+        if (cart_coords[1] < dims[1] - 1) {
+          MPI_Irecv(receive_eastern_ghost.data(), n_cols, MPI_DOUBLE, eastern_rank, 0, comm_cart, &requests[5]);
+          // Insert recieved boundary values in ghost layer
+          for (int i = 0; i < n_cols; ++i) {
+            proc_grid_2[i * (east_boundary_start+1) + cols_proc] = receive_eastern_ghost[i]; // ghost layer is one element right = +1
+          }
+        }
+
+        // Send eastern boundary - except for processes in last column
+        if (cart_coords[1] < dims[1] - 1) {
+          MPI_Isend(send_eastern_boundary.data(), n_cols, MPI_DOUBLE, eastern_rank, 0, comm_cart, &requests[6]);
+        }
+
+        // Recieve in west ghost layer - except for processes in first column
+        if (cart_coords[1] > 0) {
+          MPI_Irecv(receive_western_ghost.data(), n_cols, MPI_DOUBLE, western_rank, 0, comm_cart, &requests[7]);
+          // Insert recieved boundary values in ghost layer
+          for(int i = 0; i < n_cols; ++i) {
+            proc_grid_2[i * (west_boundary_start-1) + cols_proc] = receive_western_ghost[i]; // ghost layer is one element left = -1
+          }
+        }
+
+      MPI_Barrier(comm_cart);
       }
       
       // Wait for all processes to finish
@@ -357,12 +495,12 @@ int main(int argc, char *argv[]) try {
 
     // Process 0 receives grid values and writes to file
     if (cart_rank == 0) {
-      std::vector<double> merged_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_remainder);
+      std::vector<double> merged_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, rows_has_remainder);
       writeToFile(opts.name, merged_grid, opts.N);
     }
 
     // perform last Jacobi iteration with residual = true
-    jacobi_iteration(opts.N, rows_proc, cols_proc, num_proc, my_rank, proc_grid_1, proc_grid_2, true);
+    jacobi_iteration(opts.N, rows_proc, cols_proc, num_proc, proc_grid_1, proc_grid_2, true);
     
     // Send grid values to master process
     if (cart_rank != 0) {
@@ -371,7 +509,7 @@ int main(int argc, char *argv[]) try {
 
     // Process 0 receives final grid values and calculates norms
     if (cart_rank == 0) {
-      std::vector<double> final_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_remainder);
+      std::vector<double> final_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, rows_has_remainder);
       
       std::cout << "norm2 = " << norm2(final_grid, opts.N) << std::endl;
       std::cout << "normInf = " << normInf(final_grid, opts.N) << std::endl;

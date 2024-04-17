@@ -399,7 +399,7 @@ int main(int argc, char** argv) {
         if (flag_one_process) jacobi_iter_one_process(x1, x2);
         else jacobi_iter(x1, x2);
 
-        // Print grids of processes
+/*         // Print grids of processes
         if (coord[0] == 0 && coord[1] == 2) {
           std::cout << "Coords before sending: " << coord[0] << " " << coord[1] << std::endl;
           print_vec(x2, height, width, rk);
@@ -419,7 +419,7 @@ int main(int argc, char** argv) {
           std::cout << "Coords before sending: " << coord[0] << " " << coord[1] << std::endl;
           print_vec(x2, height, width, rk);
         }
-        MPI_Barrier(comm);
+        MPI_Barrier(comm); */
 
         // Print grids of processes
 /*         if (coord[0] == 1 && coord[1] == 0) {
@@ -457,18 +457,83 @@ int main(int argc, char** argv) {
         MPI_Isend(&x1[(height-2)*width], 1, row, nb[TOP], TOP, comm, &req[6]);
         MPI_Irecv(&x1[0], 1, row, nb[BOTTOM], TOP, comm, &req[7]);
 
-/*         // Print grids of processes
-        if (coord[0] == 1 && coord[1] == 1) {
-          std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
-          print_vec(x1, height, width, rk);
-        }
-        MPI_Barrier(comm); */
-
         // wait/block for/until all four communication calls to finish
         std::array<MPI_Status, n * 2 * 2> status;
         MPI_Waitall(n * 2 * 2, std::data(req), std::data(status));
 
     }
+
+    // Print grids of processes
+    if (coord[0] == 0 && coord[1] == 0) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 1 && coord[1] == 0) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 2 && coord[1] == 0) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 0 && coord[1] == 1) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 1 && coord[1] == 1) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 2 && coord[1] == 1) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+     // Print grids of processes
+    if (coord[0] == 0 && coord[1] == 2) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 1 && coord[1] == 2) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);
+
+    // Print grids of processes
+    if (coord[0] == 2 && coord[1] == 2) {
+      std::cout << "Iterations finished: " << std::endl;
+      std::cout << "Coords after recieving: " << coord[0] << " " << coord[1] << std::endl;
+      print_vec(x1, height, width, rk);
+    }
+    MPI_Barrier(comm);   
 
     // calculating residual in x2
     if (flag_one_process) jacobi_iter_one_process(x1, x2, true);
