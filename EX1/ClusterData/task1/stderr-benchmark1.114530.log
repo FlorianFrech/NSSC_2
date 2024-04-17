@@ -1,0 +1,10 @@
+main.cpp: In function ‘int main(int, char**)’:
+main.cpp:257:19: warning: ISO C++ forbids variable length array ‘dims’ [-Wvla]
+     int dims[ndims];
+                   ^
+main.cpp:260:27: warning: ISO C++ forbids variable length array ‘period_flags’ [-Wvla]
+     int period_flags[ndims];
+                           ^
+main.cpp:317:29: warning: comparison of integer expressions of different signedness: ‘int’ and ‘size_t’ {aka ‘long unsigned int’} [-Wsign-compare]
+     for (int iter = 0; iter <= opts.iters; ++iter) {
+                        ~~~~~^~~~~~~~~~~~~

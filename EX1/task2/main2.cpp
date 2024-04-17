@@ -1,5 +1,5 @@
 // mpic++ main2.cpp -std=c++17 -O3 -Wall -pedantic -march=native -ffast-math -o solverMPI
-// mpirun -np 3 --oversubscribe ./solverMPI 1D test 6 100 1.0 2.0
+// mpirun -np 3 --oversubscribe ./solverMPI 2D test 250 100 1.0 2.0
 
 #include <iostream>
 #include <string>
@@ -184,8 +184,6 @@ std::vector<double> merge_subgrids(int num_proc, int pts_proc, int global_N, std
       }
     }
   }
-
-  std::cout << "written to gloabal grid" << std::endl;
   
   // Remove ghost layers
   std::vector<double> global_grid_cleaned(global_N * global_N, 6.0);
@@ -195,36 +193,20 @@ std::vector<double> merge_subgrids(int num_proc, int pts_proc, int global_N, std
     if (has_remainder && k == num_proc - 1) {
       for (int i = 1; i < rows_proc_remainder-1; ++i) {
         for (int j = 1; j < cols_proc - 1; ++j) {
-          std::cout << global_grid_cleaned[p] << " " << global_grid[start + j + i * cols_proc] << " ";
           global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
           p++;
-          std::cout << global_grid_cleaned[p] << ", ";
         }
-        std::cout << std::endl;
       }
     }
     else {
-      std::cout << "Process" << k << std::endl;
       for (int i = 1; i < rows_proc - 1; ++i) {
         for (int j = 1; j < cols_proc - 1; ++j) {
           global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
           p++;
-          std::cout << global_grid_cleaned[p] << " ";
         }
-        std::cout << std::endl;
       }
     }
   }
-
-  // Print global grid cleaned
-  std::cout << "Global grid cleaned:" << std::endl;
-  for (int i = 0; i < global_N; ++i) {
-    for (int j = 0; j < global_N; ++j) {
-      std::cout << global_grid_cleaned[j + i * global_N] << " ";
-    }
-    std::cout << std::endl;
-  }
-
   return global_grid_cleaned;
 }
 
@@ -258,15 +240,17 @@ int main(int argc, char *argv[]) try {
 
     // Initialize MPI
     MPI_Init(&argc, &argv);
-
+    
+    // Get number of MPI Processors and rank
     int num_proc, my_rank;
     MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     if (my_rank == 0) {
-      std::cout << "total number of MPI processes = " << num_proc << "" << std::endl;
-      std::cout << "my_rank = " << my_rank << "" << std::endl;
-      opts.print();
+      std::cout << "Num_Procs: " << num_proc << "" << std::endl;
+      std::cout << "N: " << opts.N << std::endl;
+      std::cout << "Iterations: " << opts.iters << std::endl;
+      //opts.print();
     }
 
     // Create cartesian 1D topology
@@ -280,9 +264,11 @@ int main(int argc, char *argv[]) try {
     MPI_Comm comm_cart;
     MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, period_flags, periods, &comm_cart);
 
-    int cart_rank, cart_coords;
+    int cart_rank, cart_coords[2];
     MPI_Comm_rank(comm_cart, &cart_rank);
-    MPI_Cart_coords(comm_cart, cart_rank, ndims, &cart_coords);
+    MPI_Cart_coords(comm_cart, cart_rank, ndims, cart_coords);
+
+    std::cout << "Process " << cart_rank << "\tcoords: " << cart_coords[0] << ", " << cart_coords[1] << std::endl;
 
     // Northern rank (my_rank + 1), southern rank (my_rank - 1)
     int northern_rank, southern_rank;
@@ -294,7 +280,7 @@ int main(int argc, char *argv[]) try {
     bool has_remainder = N % num_proc != 0;
     // Adapt number of rows for last process
     if (has_remainder) {
-      rows_proc = N / num_proc + 1;
+      rows_proc = N / num_proc;
       if (my_rank == num_proc - 1) {
         rows_proc = N - rows_proc * (num_proc-1);
       }
@@ -303,10 +289,10 @@ int main(int argc, char *argv[]) try {
       rows_proc = N / num_proc ;
     }
     if (my_rank == num_proc - 1 && has_remainder) {
-      std::cout << "Last process has " << rows_proc << " rows." << std::endl;
+      //std::cout << "Last process has " << rows_proc << " rows." << std::endl;
     }
     if (my_rank == 0) {
-      std::cout << "Processes have " << rows_proc << " rows." << std::endl;
+      //std::cout << "Processes have " << rows_proc << " rows." << std::endl;
     }
     rows_proc += n_ghost_layers;
     cols_proc = opts.N + n_ghost_layers;
@@ -370,7 +356,6 @@ int main(int argc, char *argv[]) try {
     // Send grid values to master process
     if (cart_rank != 0) {
       MPI_Send(proc_grid_2.data(), pts_proc, MPI_DOUBLE, 0, cart_rank, comm_cart);
-      std::cout << "Process " << my_rank << " sent grid to process 0." << std::endl;
     }
 
     // Process 0 receives grid values and writes to file
@@ -391,9 +376,9 @@ int main(int argc, char *argv[]) try {
     if (cart_rank == 0) {
       std::vector<double> final_grid = merge_subgrids(num_proc, pts_proc, opts.N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_remainder);
       
-      std::cout << "\tnorm2\t= " << norm2(final_grid, opts.N) << std::endl;
-      std::cout << "\tnormInf\t= " << normInf(final_grid, opts.N) << std::endl;
-      std::cout << "\ttime\t= " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
+      //std::cout << "norm2 = " << norm2(final_grid, opts.N) << std::endl;
+      //std::cout << "normInf = " << normInf(final_grid, opts.N) << std::endl;
+      std::cout << "time = " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
     }
 
     MPI_Finalize();

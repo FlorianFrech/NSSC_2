@@ -1,0 +1,1014 @@
+Num_Procs: 8
+N: 1000
+Iterations: 1000
+time = 1332.45 ms
+
+Num_Procs: 9
+N: 1000
+Iterations: 1000
+time = 691.651 ms
+
+Num_Procs: 10
+N: 1000
+Iterations: 1000
+time = 549.343 ms
+
+Num_Procs: 11
+N: 1000
+Iterations: 1000
+time = 545.419 ms
+
+Num_Procs: 12
+N: 1000
+Iterations: 1000
+time = 700.244 ms
+
+Num_Procs: 13
+N: 1000
+Iterations: 1000
+time = 647.188 ms
+
+Num_Procs: 14
+N: 1000
+Iterations: 1000
+time = 633.103 ms
+
+Num_Procs: 15
+N: 1000
+Iterations: 1000
+time = 729.756 ms
+
+Num_Procs: 1
+N: 2000
+Iterations: 1000
+time = 3880.13 ms
+
+Num_Procs: 2
+N: 2000
+Iterations: 1000
+time = 3522.18 ms
+
+Num_Procs: 3
+N: 2000
+Iterations: 1000
+time = 3604.92 ms
+
+Num_Procs: 4
+N: 2000
+Iterations: 1000
+time = 3515.62 ms
+
+Num_Procs: 5
+N: 2000
+Iterations: 1000
+time = 3510.52 ms
+
+Num_Procs: 6
+N: 2000
+Iterations: 1000
+time = 3507.05 ms
+
+Num_Procs: 7
+N: 2000
+Iterations: 1000
+time = 3655.94 ms
+
+Num_Procs: 8
+N: 2000
+Iterations: 1000
+time = 3696.94 ms
+
+Num_Procs: 9
+N: 2000
+Iterations: 1000
+time = 4240.62 ms
+
+Num_Procs: 10
+N: 2000
+Iterations: 1000
+time = 4661.25 ms
+
+Num_Procs: 11
+N: 2000
+Iterations: 1000
+time = 4327.04 ms
+
+Num_Procs: 12
+N: 2000
+Iterations: 1000
+time = 3879.41 ms
+
+Num_Procs: 13
+N: 2000
+Iterations: 1000
+time = 3745.94 ms
+
+Num_Procs: 14
+N: 2000
+Iterations: 1000
+time = 4169.61 ms
+
+Num_Procs: 15
+N: 2000
+Iterations: 1000
+time = 4048.33 ms
+
+Num_Procs: 1
+N: 125
+Iterations: 1000
+time = 5.42958 ms
+
+Num_Procs: 2
+N: 125
+Iterations: 1000
+time = 2.81784 ms
+
+Num_Procs: 3
+N: 125
+Iterations: 1000
+time = 2.73554 ms
+
+Num_Procs: 4
+N: 125
+Iterations: 1000
+time = 2.36554 ms
+
+Num_Procs: 5
+N: 125
+Iterations: 1000
+time = 6.38949 ms
+
+Num_Procs: 6
+N: 125
+Iterations: 1000
+time = 2.04773 ms
+
+Num_Procs: 7
+N: 125
+Iterations: 1000
+time = 5.67018 ms
+
+Num_Procs: 8
+N: 125
+Iterations: 1000
+time = 8.49972 ms
+
+Num_Procs: 9
+N: 125
+Iterations: 1000
+time = 27.3157 ms
+
+Num_Procs: 10
+N: 125
+Iterations: 1000
+time = 9.06803 ms
+
+Num_Procs: 11
+N: 125
+Iterations: 1000
+time = 25.5149 ms
+
+Num_Procs: 12
+N: 125
+Iterations: 1000
+time = 33.397 ms
+
+Num_Procs: 13
+N: 125
+Iterations: 1000
+time = 27.1866 ms
+
+Num_Procs: 14
+N: 125
+Iterations: 1000
+time = 19.7635 ms
+
+Num_Procs: 15
+N: 125
+Iterations: 1000
+time = 25.4801 ms
+
+Num_Procs: 1
+N: 250
+Iterations: 1000
+time = 22.2563 ms
+
+Num_Procs: 2
+N: 250
+Iterations: 1000
+time = 11.2683 ms
+
+Num_Procs: 3
+N: 250
+Iterations: 1000
+time = 12.5452 ms
+
+Num_Procs: 4
+N: 250
+Iterations: 1000
+time = 7.96802 ms
+
+Num_Procs: 5
+N: 250
+Iterations: 1000
+time = 5.86349 ms
+
+Num_Procs: 6
+N: 250
+Iterations: 1000
+time = 11.5739 ms
+
+Num_Procs: 7
+N: 250
+Iterations: 1000
+time = 11.0131 ms
+
+Num_Procs: 8
+N: 250
+Iterations: 1000
+time = 33.7041 ms
+
+Num_Procs: 9
+N: 250
+Iterations: 1000
+time = 34.1932 ms
+
+Num_Procs: 10
+N: 250
+Iterations: 1000
+time = 33.3809 ms
+
+Num_Procs: 11
+N: 250
+Iterations: 1000
+time = 25.5805 ms
+
+Num_Procs: 12
+N: 250
+Iterations: 1000
+time = 33.7017 ms
+
+Num_Procs: 13
+N: 250
+Iterations: 1000
+time = 41.0541 ms
+
+Num_Procs: 14
+N: 250
+Iterations: 1000
+time = 54.3621 ms
+
+Num_Procs: 15
+N: 250
+Iterations: 1000
+time = 38.098 ms
+
+Num_Procs: 1
+N: 1000
+Iterations: 1000
+time = 909.831 ms
+
+Num_Procs: 2
+N: 1000
+Iterations: 1000
+time = 687.822 ms
+
+Num_Procs: 3
+N: 1000
+Iterations: 1000
+time = 760.583 ms
+
+Num_Procs: 4
+N: 1000
+Iterations: 1000
+time = 824.819 ms
+
+Num_Procs: 5
+N: 1000
+Iterations: 1000
+time = 909.15 ms
+
+Num_Procs: 6
+N: 1000
+Iterations: 1000
+time = 679.176 ms
+
+Num_Procs: 7
+N: 1000
+Iterations: 1000
+time = 589.832 ms
+
+Num_Procs: 8
+N: 1000
+Iterations: 1000
+time = 838.321 ms
+
+Num_Procs: 9
+N: 1000
+Iterations: 1000
+time = 876.323 ms
+
+Num_Procs: 10
+N: 1000
+Iterations: 1000
+time = 987.721 ms
+
+Num_Procs: 11
+N: 1000
+Iterations: 1000
+time = 747.251 ms
+
+Num_Procs: 12
+N: 1000
+Iterations: 1000
+time = 780.427 ms
+
+Num_Procs: 13
+N: 1000
+Iterations: 1000
+time = 655.299 ms
+
+Num_Procs: 14
+N: 1000
+Iterations: 1000
+time = 959.953 ms
+
+Num_Procs: 15
+N: 1000
+Iterations: 1000
+time = 660.027 ms
+
+Num_Procs: 1
+N: 2000
+Iterations: 1000
+time = 3817.85 ms
+
+Num_Procs: 2
+N: 2000
+Iterations: 1000
+time = 3710.89 ms
+
+Num_Procs: 3
+N: 2000
+Iterations: 1000
+time = 3292.52 ms
+
+Num_Procs: 4
+N: 2000
+Iterations: 1000
+time = 3999.25 ms
+
+Num_Procs: 5
+N: 2000
+Iterations: 1000
+time = 3857.39 ms
+
+Num_Procs: 6
+N: 2000
+Iterations: 1000
+time = 3577.81 ms
+
+Num_Procs: 7
+N: 2000
+Iterations: 1000
+time = 3740.17 ms
+
+Num_Procs: 8
+N: 2000
+Iterations: 1000
+time = 3671.42 ms
+
+Num_Procs: 9
+N: 2000
+Iterations: 1000
+time = 3580.76 ms
+
+Num_Procs: 10
+N: 2000
+Iterations: 1000
+time = 4076.39 ms
+
+Num_Procs: 11
+N: 2000
+Iterations: 1000
+time = 3932.91 ms
+
+Num_Procs: 12
+N: 2000
+Iterations: 1000
+time = 3695.8 ms
+
+Num_Procs: 13
+N: 2000
+Iterations: 1000
+time = 3659.16 ms
+
+Num_Procs: 14
+N: 2000
+Iterations: 1000
+time = 3635.06 ms
+
+Num_Procs: 15
+N: 2000
+Iterations: 1000
+time = 3650.34 ms
+
+Num_Procs: 1
+N: 125
+Iterations: 1000
+time = 5.83698 ms
+
+Num_Procs: 2
+N: 125
+Iterations: 1000
+time = 3.75775 ms
+
+Num_Procs: 3
+N: 125
+Iterations: 1000
+time = 3.35295 ms
+
+Num_Procs: 4
+N: 125
+Iterations: 1000
+time = 2.55894 ms
+
+Num_Procs: 5
+N: 125
+Iterations: 1000
+time = 2.29363 ms
+
+Num_Procs: 6
+N: 125
+Iterations: 1000
+time = 5.34738 ms
+
+Num_Procs: 7
+N: 125
+Iterations: 1000
+time = 7.2702 ms
+
+Num_Procs: 8
+N: 125
+Iterations: 1000
+time = 9.39713 ms
+
+Num_Procs: 9
+N: 125
+Iterations: 1000
+time = 10.5426 ms
+
+Num_Procs: 10
+N: 125
+Iterations: 1000
+time = 19.2706 ms
+
+Num_Procs: 11
+N: 125
+Iterations: 1000
+time = 14.7255 ms
+
+Num_Procs: 12
+N: 125
+Iterations: 1000
+time = 26.0065 ms
+
+Num_Procs: 13
+N: 125
+Iterations: 1000
+time = 13.9817 ms
+
+Num_Procs: 14
+N: 125
+Iterations: 1000
+time = 18.4562 ms
+
+Num_Procs: 15
+N: 125
+Iterations: 1000
+time = 17.2162 ms
+
+Num_Procs: 1
+N: 250
+Iterations: 1000
+time = 20.94 ms
+
+Num_Procs: 2
+N: 250
+Iterations: 1000
+time = 12.1911 ms
+
+Num_Procs: 3
+N: 250
+Iterations: 1000
+time = 8.85213 ms
+
+Num_Procs: 4
+N: 250
+Iterations: 1000
+time = 8.44642 ms
+
+Num_Procs: 5
+N: 250
+Iterations: 1000
+time = 5.49818 ms
+
+Num_Procs: 6
+N: 250
+Iterations: 1000
+time = 7.40071 ms
+
+Num_Procs: 7
+N: 250
+Iterations: 1000
+time = 12.3391 ms
+
+Num_Procs: 8
+N: 250
+Iterations: 1000
+time = 16.4902 ms
+
+Num_Procs: 9
+N: 250
+Iterations: 1000
+time = 17.4694 ms
+
+Num_Procs: 10
+N: 250
+Iterations: 1000
+time = 27.5472 ms
+
+Num_Procs: 11
+N: 250
+Iterations: 1000
+time = 23.2226 ms
+
+Num_Procs: 12
+N: 250
+Iterations: 1000
+time = 17.2899 ms
+
+Num_Procs: 13
+N: 250
+Iterations: 1000
+time = 17.0882 ms
+
+Num_Procs: 14
+N: 250
+Iterations: 1000
+time = 30.1222 ms
+
+Num_Procs: 15
+N: 250
+Iterations: 1000
+time = 17.0401 ms
+
+Num_Procs: 1
+N: 1000
+Iterations: 1000
+time = 732.016 ms
+
+Num_Procs: 2
+N: 1000
+Iterations: 1000
+time = 665.768 ms
+
+Num_Procs: 3
+N: 1000
+Iterations: 1000
+time = 687.135 ms
+
+Num_Procs: 4
+N: 1000
+Iterations: 1000
+time = 692.65 ms
+
+Num_Procs: 5
+N: 1000
+Iterations: 1000
+time = 512.245 ms
+
+Num_Procs: 6
+N: 1000
+Iterations: 1000
+time = 527.472 ms
+
+Num_Procs: 7
+N: 1000
+Iterations: 1000
+time = 589.521 ms
+
+Num_Procs: 8
+N: 1000
+Iterations: 1000
+time = 622.462 ms
+
+Num_Procs: 9
+N: 1000
+Iterations: 1000
+time = 548.195 ms
+
+Num_Procs: 10
+N: 1000
+Iterations: 1000
+time = 619.944 ms
+
+Num_Procs: 11
+N: 1000
+Iterations: 1000
+time = 568.838 ms
+
+Num_Procs: 12
+N: 1000
+Iterations: 1000
+time = 613.157 ms
+
+Num_Procs: 13
+N: 1000
+Iterations: 1000
+time = 692.419 ms
+
+Num_Procs: 14
+N: 1000
+Iterations: 1000
+time = 694.201 ms
+
+Num_Procs: 15
+N: 1000
+Iterations: 1000
+time = 723.856 ms
+
+Num_Procs: 1
+N: 2000
+Iterations: 1000
+time = 4119.3 ms
+
+Num_Procs: 2
+N: 2000
+Iterations: 1000
+time = 3700.54 ms
+
+Num_Procs: 3
+N: 2000
+Iterations: 1000
+time = 3601.9 ms
+
+Num_Procs: 4
+N: 2000
+Iterations: 1000
+time = 3568 ms
+
+Num_Procs: 5
+N: 2000
+Iterations: 1000
+time = 3479.61 ms
+
+Num_Procs: 6
+N: 2000
+Iterations: 1000
+time = 3568.05 ms
+
+Num_Procs: 7
+N: 2000
+Iterations: 1000
+time = 3595.76 ms
+
+Num_Procs: 8
+N: 2000
+Iterations: 1000
+time = 3501.61 ms
+
+Num_Procs: 9
+N: 2000
+Iterations: 1000
+time = 3686.39 ms
+
+Num_Procs: 10
+N: 2000
+Iterations: 1000
+time = 3694.1 ms
+
+Num_Procs: 11
+N: 2000
+Iterations: 1000
+time = 3537.14 ms
+
+Num_Procs: 12
+N: 2000
+Iterations: 1000
+time = 3560.83 ms
+
+Num_Procs: 13
+N: 2000
+Iterations: 1000
+time = 3565.99 ms
+
+Num_Procs: 14
+N: 2000
+Iterations: 1000
+time = 3729.7 ms
+
+Num_Procs: 15
+N: 2000
+Iterations: 1000
+time = 4220.35 ms
+
+Num_Procs: 1
+N: 125
+Iterations: 1000
+time = 4.88927 ms
+
+Num_Procs: 2
+N: 125
+Iterations: 1000
+time = 3.11604 ms
+
+Num_Procs: 3
+N: 125
+Iterations: 1000
+time = 2.47193 ms
+
+Num_Procs: 4
+N: 125
+Iterations: 1000
+time = 2.38323 ms
+
+Num_Procs: 5
+N: 125
+Iterations: 1000
+time = 2.21583 ms
+
+Num_Procs: 6
+N: 125
+Iterations: 1000
+time = 2.01533 ms
+
+Num_Procs: 7
+N: 125
+Iterations: 1000
+time = 6.38359 ms
+
+Num_Procs: 8
+N: 125
+Iterations: 1000
+time = 8.78262 ms
+
+Num_Procs: 9
+N: 125
+Iterations: 1000
+time = 12.8873 ms
+
+Num_Procs: 10
+N: 125
+Iterations: 1000
+time = 10.8758 ms
+
+Num_Procs: 11
+N: 125
+Iterations: 1000
+time = 14.1905 ms
+
+Num_Procs: 12
+N: 125
+Iterations: 1000
+time = 21.2113 ms
+
+Num_Procs: 13
+N: 125
+Iterations: 1000
+time = 21.3995 ms
+
+Num_Procs: 14
+N: 125
+Iterations: 1000
+time = 17.0948 ms
+
+Num_Procs: 15
+N: 125
+Iterations: 1000
+time = 12.8998 ms
+
+Num_Procs: 1
+N: 250
+Iterations: 1000
+time = 20.2457 ms
+
+Num_Procs: 2
+N: 250
+Iterations: 1000
+time = 12.3528 ms
+
+Num_Procs: 3
+N: 250
+Iterations: 1000
+time = 8.63932 ms
+
+Num_Procs: 4
+N: 250
+Iterations: 1000
+time = 7.2689 ms
+
+Num_Procs: 5
+N: 250
+Iterations: 1000
+time = 8.37642 ms
+
+Num_Procs: 6
+N: 250
+Iterations: 1000
+time = 4.78667 ms
+
+Num_Procs: 7
+N: 250
+Iterations: 1000
+time = 13.6209 ms
+
+Num_Procs: 8
+N: 250
+Iterations: 1000
+time = 19.5047 ms
+
+Num_Procs: 9
+N: 250
+Iterations: 1000
+time = 19.5436 ms
+
+Num_Procs: 10
+N: 250
+Iterations: 1000
+time = 42.9588 ms
+
+Num_Procs: 11
+N: 250
+Iterations: 1000
+time = 21.1343 ms
+
+Num_Procs: 12
+N: 250
+Iterations: 1000
+time = 50.1637 ms
+
+Num_Procs: 13
+N: 250
+Iterations: 1000
+time = 28.8198 ms
+
+Num_Procs: 14
+N: 250
+Iterations: 1000
+time = 27.4327 ms
+
+Num_Procs: 15
+N: 250
+Iterations: 1000
+time = 22.1654 ms
+
+Num_Procs: 1
+N: 1000
+Iterations: 1000
+time = 878.815 ms
+
+Num_Procs: 2
+N: 1000
+Iterations: 1000
+time = 721.666 ms
+
+Num_Procs: 3
+N: 1000
+Iterations: 1000
+time = 705.351 ms
+
+Num_Procs: 4
+N: 1000
+Iterations: 1000
+time = 705.432 ms
+
+Num_Procs: 5
+N: 1000
+Iterations: 1000
+time = 698.991 ms
+
+Num_Procs: 6
+N: 1000
+Iterations: 1000
+time = 701.611 ms
+
+Num_Procs: 7
+N: 1000
+Iterations: 1000
+time = 678.756 ms
+
+Num_Procs: 8
+N: 1000
+Iterations: 1000
+time = 771.051 ms
+
+Num_Procs: 9
+N: 1000
+Iterations: 1000
+time = 709.852 ms
+
+Num_Procs: 10
+N: 1000
+Iterations: 1000
+time = 877.056 ms
+
+Num_Procs: 11
+N: 1000
+Iterations: 1000
+time = 833.099 ms
+
+Num_Procs: 12
+N: 1000
+Iterations: 1000
+time = 690.08 ms
+
+Num_Procs: 13
+N: 1000
+Iterations: 1000
+time = 574.356 ms
+
+Num_Procs: 14
+N: 1000
+Iterations: 1000
+time = 785.555 ms
+
+Num_Procs: 15
+N: 1000
+Iterations: 1000
+time = 799.589 ms
+
+Num_Procs: 1
+N: 2000
+Iterations: 1000
+time = 4185.76 ms
+
+Num_Procs: 2
+N: 2000
+Iterations: 1000
+time = 4132.11 ms
+
+Num_Procs: 3
+N: 2000
+Iterations: 1000
+time = 3638.55 ms
+
+Num_Procs: 4
+N: 2000
+Iterations: 1000
+time = 3522.74 ms
+
+Num_Procs: 5
+N: 2000
+Iterations: 1000
+time = 3531.96 ms
+
+Num_Procs: 6
+N: 2000
+Iterations: 1000
+time = 3564.34 ms
+
+Num_Procs: 7
+N: 2000
+Iterations: 1000
+time = 3521.56 ms
+
+Num_Procs: 8
+N: 2000
+Iterations: 1000
+time = 3486.13 ms
+
+Num_Procs: 9
+N: 2000
+Iterations: 1000
+time = 3512.06 ms
+
+Num_Procs: 10
+N: 2000
+Iterations: 1000
+time = 3460.03 ms
+
+Num_Procs: 11
+N: 2000
+Iterations: 1000
+time = 3616.21 ms
+
+Num_Procs: 12
+N: 2000
+Iterations: 1000
+time = 3988.31 ms
+
+Num_Procs: 13
+N: 2000
+Iterations: 1000
+time = 3682.61 ms
+
+Num_Procs: 14
+N: 2000
+Iterations: 1000
+time = 3705.99 ms
+
+Num_Procs: 15
+N: 2000
+Iterations: 1000
+time = 3742.3 ms
