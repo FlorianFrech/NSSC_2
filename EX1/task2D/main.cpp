@@ -419,7 +419,7 @@ std::vector<double> merge_subgrids(int rows_proc, int cols_proc, int rows_remain
     }
   }
 
-  // Calculate global grid size with ghost layers
+  // Calculate global grid size with ghost layers - take care of remainders
   int global_grid_size = 0;
   if (rows_remainder > 0) {
     int default_size = rows_proc * cols_proc;
