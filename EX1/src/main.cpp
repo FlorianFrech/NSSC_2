@@ -171,6 +171,7 @@ int main(int argc, char *argv[]) try {
 
   write(x2);
   jacobi_iter(x1, x2, true);
+  write(x2);
 
   std::cout << "\tnorm2\t= " << norm2(x2) << std::endl;
   std::cout << "\tnormInf\t= " << normInf(x2) << std::endl;

@@ -15,6 +15,7 @@
 
 namespace program_options {
 
+
 struct Options {
   unsigned int mpi_mode;  
   std::string name;
@@ -55,6 +56,109 @@ auto parse(int argc, char *argv[]) {
 }
 
 } // namespace program_options
+
+/*Jacobi single process*/
+/*Jacobi single process*/
+void jacobi_single_process(int N, int rows, int cols, std::vector<double> &xold,
+                          std::vector<double> &xnew, bool residual = false) {
+    auto h = 1.0 / (N - 1);
+    auto h2 = h * h;
+    // all interior points
+    for (size_t j = 1; j < N - 1; ++j) {
+      for (size_t i = 1; i < N - 1; ++i) {
+        auto w = xold[(i - 1) + (j)*N];
+        auto e = xold[(i + 1) + (j)*N];
+        auto n = xold[(i) + (j + 1) * N];
+        auto s = xold[(i) + (j - 1) * N];
+        auto c = xold[(i) + (j)*N];
+        if (!residual)
+          xnew[i + j * N] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+        else
+          xnew[i + j * N] = (-1.0 / h2) * (w + e + n + s - 4.0 * c);
+      }
+    }
+    // isolating south boundary
+    {
+      size_t j = 0;
+      for (size_t i = 1; i < N - 1; ++i) {
+        auto w = xold[(i - 1) + (j)*N];
+        auto e = xold[(i + 1) + (j)*N];
+        auto n = xold[(i) + (j + 1) * N];
+        auto s = n;
+        auto c = xold[(i) + (j)*N];
+        if (!residual)
+          xnew[i + j * N] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+        else
+          xnew[i + j * N] = (-1.0 / h2) * (w + e + n + s - 4 * c);
+      }
+    }
+    // isolating north boundary
+    {
+      size_t j = N - 1;
+      for (size_t i = 1; i < N - 1; ++i) {
+        auto w = xold[(i - 1) + (j)*N];
+        auto e = xold[(i + 1) + (j)*N];
+        auto s = xold[(i) + (j - 1) * N];
+        auto n = s;
+        auto c = xold[(i) + (j)*N];
+        if (!residual)
+          xnew[i + j * N] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+        else
+          xnew[i + j * N] = (-1.0 / h2) * (w + e + n + s - 4 * c);
+      }
+    }
+} 
+
+/*Jacobi Iteration 1D*/
+void jacobi_iteration_1D(int N, int rows, int cols, int num_procs, std::vector<double> &proc_grid_old, std::vector<double> &proc_grid_new, bool residual = false) {
+  auto h = 1.0 / (N - 1);
+  auto h2 = h * h;
+  // all interior points
+  for (int i = 1; i < rows - 1; ++i) {
+    for (int j = 2; j < cols - 2; ++j) {
+      auto w = proc_grid_old[(i * cols) + (j - 1)];
+      auto e = proc_grid_old[(i * cols) + (j + 1)];
+      auto n = proc_grid_old[((i + 1) * cols) + j];
+      auto s = proc_grid_old[((i - 1) * cols) + j];
+      auto c = proc_grid_old[(i * cols) + j];
+      if (!residual)
+        proc_grid_new[(i * cols) + j] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+      else
+        proc_grid_new[(i * cols) + j] = (-1.0 / h2) * (w + e + n + s - 4.0 * c);
+    }
+  }
+  
+  // isolating south boundary
+  {
+    int i = 1;
+    for (int j = 2; j < cols - 2; ++j) {
+      auto w = proc_grid_old[(i * cols) + (j - 1)];
+      auto e = proc_grid_old[(i * cols) + (j + 1)];
+      auto n = proc_grid_old[((i + 1) * cols) + j];
+      auto s = n;
+      auto c = proc_grid_old[(i * cols) + j];
+      if (!residual)
+        proc_grid_new[(i * cols) + j] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+      else
+        proc_grid_new[(i * cols) + j] = (-1.0 / h2) * (w + e + n + s - 4.0 * c);
+    }  
+  }
+    // isolating south boundary
+  {
+    int i = rows - 2;
+    for (int j = 2; j < cols - 2; ++j) {
+      auto w = proc_grid_old[(i * cols) + (j - 1)];
+      auto e = proc_grid_old[(i * cols) + (j + 1)];
+      auto s = proc_grid_old[((i - 1) * cols) + j];
+      auto n = s;
+      auto c = proc_grid_old[(i * cols) + j];
+      if (!residual)
+        proc_grid_new[(i * cols) + j] = (- (-1.0 / h2) * (w + e + n + s)) * h2 / 4.0;
+      else
+        proc_grid_new[(i * cols) + j] = (-1.0 / h2) * (w + e + n + s - 4.0 * c);
+    }
+  }
+} 
 
 /*Jacobi Iteration*/
 void jacobi_iteration(int N, int rows, int cols, int num_procs_x, int num_procs_y, std::array<int, 2> cart_coords,
@@ -333,9 +437,26 @@ void jacobi_iteration(int N, int rows, int cols, int num_procs_x, int num_procs_
 } 
 
 /*Initialize process grids with Dirichlet boundary conditions and zero*/
-void initialize_proc_grid(std::vector<double> &proc_grid, int rows, int cols, double fix_east, double fix_west, std::array<int, 2> coords, int n_procs_x) {
+void initialize_proc_grid(std::vector<double> &proc_grid, int rows, int cols, double fix_east, double fix_west,
+                          std::array<int, 2> coords, int n_procs_x, bool is_single_process_mode) {
+    if (is_single_process_mode) {
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          // West = 2nd column
+          if (j == 0) {
+              proc_grid[j + i * cols] = fix_west;
+          }
+          // East = 2nd last column
+          if (j == cols - 1) {
+              proc_grid[j + i * cols] = fix_east;
+          }
+        }
+      }
+    }
+    
+    else {
     // Skip first and last rows (= ghost layers)
-    for (int i = 1; i < rows-1; ++i) {
+      for (int i = 1; i < rows-1; ++i) {
         for (int j = 0; j < cols; ++j) {
             // West = 2nd column
             if (j == 1 && coords[1] == 0) { // && cart_coords[0] == 0
@@ -346,7 +467,9 @@ void initialize_proc_grid(std::vector<double> &proc_grid, int rows, int cols, do
                 proc_grid[j + i * cols] = fix_east;
             }
         }
-    }
+      }
+  }
+
 }
 
 /*Write to file*/
@@ -360,6 +483,83 @@ void writeToFile(std::string filename, std::vector<double> global_grid, int N) {
       csv << "\n";
     }
     csv.close();
+}
+
+std::vector<double> merge_subgrids_1D(int num_proc, int pts_proc, int global_N, std::vector<double> proc_grid_2,
+                                      int cols_proc, int rows_proc, MPI_Comm comm_cart, bool has_remainder) {
+  // Initialize global grid vector
+  std::vector<std::vector<double>> global_grid_recv(num_proc, std::vector<double>(pts_proc, 1.3));
+
+  // if has_remainder resize the last subgrid array
+  int pts_proc_remainder = 0;
+  int rows_proc_remainder = 0;
+  if (has_remainder) {
+    rows_proc_remainder = global_N - (num_proc - 1) * (rows_proc-2) + 2;
+    pts_proc_remainder = cols_proc * rows_proc_remainder;
+    global_grid_recv[num_proc - 1].resize(pts_proc_remainder, 1.3);
+  }
+
+  // Write Master sub grid to global grid recieved
+  for (int i = 0; i < pts_proc; ++i) {
+    global_grid_recv[0][i] = proc_grid_2[i];
+  }
+
+  // Recieve subgrids from other processes
+  for (int i = 1; i < num_proc; ++i) {
+    MPI_Status status;
+    if (has_remainder && i == num_proc - 1) {
+      MPI_Recv(global_grid_recv[i].data(), pts_proc_remainder, MPI_DOUBLE, i, i, comm_cart, &status);
+    }
+    else {
+      MPI_Recv(global_grid_recv[i].data(), pts_proc, MPI_DOUBLE, i, i, comm_cart, &status);
+    }
+  }
+
+  // Merge subgrids - matrix to vector
+  int global_grid_size = 0;
+  if (has_remainder) {
+    global_grid_size = (num_proc - 1) * pts_proc + pts_proc_remainder;
+  }
+  else {
+    global_grid_size = num_proc * pts_proc;
+  }
+  std::vector<double> global_grid (global_grid_size, 3.0);
+  for (int i = 0; i < num_proc; ++i) {
+    if (has_remainder && i == num_proc - 1) {
+      for (int j = 0; j < pts_proc_remainder; ++j) {
+        global_grid[i * pts_proc + j] = global_grid_recv[i][j];
+      }
+    }
+    else {
+      for (int j = 0; j < pts_proc; ++j) {
+      global_grid[i * pts_proc + j] = global_grid_recv[i][j];
+      }
+    }
+  }
+  
+  // Remove ghost layers
+  std::vector<double> global_grid_cleaned(global_N * global_N, 6.0);
+  int p = 0;
+  for (int k = 0; k < num_proc; ++k) {
+    int start = k * pts_proc;
+    if (has_remainder && k == num_proc - 1) {
+      for (int i = 1; i < rows_proc_remainder-1; ++i) {
+        for (int j = 1; j < cols_proc - 1; ++j) {
+          global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
+          p++;
+        }
+      }
+    }
+    else {
+      for (int i = 1; i < rows_proc - 1; ++i) {
+        for (int j = 1; j < cols_proc - 1; ++j) {
+          global_grid_cleaned[p] = global_grid[start + j + i * cols_proc];
+          p++;
+        }
+      }
+    }
+  }
+  return global_grid_cleaned;
 }
 
 /*Recieve subgrids and write to csv file*/
@@ -523,7 +723,7 @@ int main(int argc, char *argv[]) try {
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     // Check for 1D or 2D mpi mode or prime numbers
-    bool is_1D_mode = opts.mpi_mode == 1 || check_if_prime(num_proc);
+    bool is_1D_mode = opts.mpi_mode == 1 || check_if_prime(num_proc) || num_proc < 4 ;
 
     // Check for single process execution
     bool is_single_process_mode = num_proc == 1;
@@ -567,6 +767,11 @@ int main(int argc, char *argv[]) try {
     // Check for remainders in rows and columns
     bool has_cols_remainder = N % num_proc_y != 0;
     bool has_rows_remainder = N % num_proc_x != 0;
+
+    // Throw exception if 2D with remainder
+    if ((!is_1D_mode || !is_single_process_mode) && (has_cols_remainder || has_rows_remainder)) {
+      throw std::runtime_error("2D with remainder unfortunately not implemented");
+    }
 
     // Calculate the number of rows and columns in the grid for each process
     if (has_rows_remainder) {
@@ -632,9 +837,17 @@ int main(int argc, char *argv[]) try {
 
     // Perfrom Jacobi Iteration
     for (int iter = 0; iter < opts.iters; ++iter) {
+      if (is is_single_process_mode) {
+        jacobi_single_process(N, rows_proc, cols_proc, proc_grid_1, proc_grid_2);    
+        std::swap(proc_grid_1, proc_grid_2);       
+      }
+      else if (is_1D_mode) {
+        jacobi_iteration_1D(N, rows_proc, cols_proc, num_proc, proc_grid_1, proc_grid_2);
+      }
+      else {
       // perform Jacobi iteration
       jacobi_iteration(N, rows_proc, cols_proc, num_proc_x, num_proc_y, coords, proc_grid_1, proc_grid_2, cart_rank, false);
-
+      }
       // Sending boundary values and recieving ghost values
       std::array<MPI_Request, n * 2 * 2> requests;
       
@@ -659,6 +872,7 @@ int main(int argc, char *argv[]) try {
 
       // Wait for all processes to finish
       MPI_Waitall(requests.size(), requests.data(), MPI_STATUSES_IGNORE);
+      
     }
 
     // End timer
@@ -670,12 +884,16 @@ int main(int argc, char *argv[]) try {
     }
 
     // Process 0 recieves the grid values and writes to file
-    if (cart_rank == 0) {
+    if (cart_rank == 0 && !is_single_process_mode && !is_1D_mode) {
       std::vector<double> merged_grid = merge_subgrids(rows_proc, cols_proc, rows_remainder, cols_remainder, num_proc_x, num_proc_y,
                                                         proc_grid_1, comm_cart, N);
       writeToFile(opts.name, merged_grid, opts.N);
     }
-
+    else if (cart_rank == 0 && !is_single_process_mode && is_1D_mode) {
+      std::vector<double> merged_grid = merge_subgrids_1D(num_proc, pts_proc, N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_rows_remainder)
+      writeToFile(opts.name, merged_grid, opts.N);
+    }
+    else if (is_single_process_mode) writeToFile(opts.name, proc_grid_1, opts.N); 
     MPI_Barrier(comm_cart);
 
     // perform last Jacobi iteration with residual = true
@@ -687,11 +905,22 @@ int main(int argc, char *argv[]) try {
     }
 
     // Process 0 recieves final grid values and calculates norms
-    if (cart_rank == 0) {
+    if (cart_rank == 0 && !is_single_process_mode && !is_1D_mode) {
       std::vector<double> final_grid = merge_subgrids(rows_proc, cols_proc, rows_remainder, cols_remainder, num_proc_x, num_proc_y,
                                                       proc_grid_2, comm_cart, N);
       std::cout << "norm2 = " << norm2(final_grid, opts.N) << std::endl;
       std::cout << "normInf = " << normInf(final_grid, opts.N) << std::endl;
+      std::cout << "time = " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
+    }
+    else if(cart_rank == 0 && is_1D_mode && !is_single_process_mode) {
+      std::vector<double> final_grid = merge_subgrids_1D(num_proc, pts_proc, N, proc_grid_2, cols_proc, rows_proc, comm_cart, has_rows_remainder);
+      std::cout << "norm2 = " << norm2(final_grid, opts.N) << std::endl;
+      std::cout << "normInf = " << normInf(final_grid, opts.N) << std::endl;
+      std::cout << "time = " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
+    }
+    else if (is_single_process_mode) {
+      std::cout << "norm2 = " << norm2(proc_grid_1, opts.N) << std::endl;
+      std::cout << "normInf = " << normInf(proc_grid_1, opts.N) << std::endl;
       std::cout << "time = " << std::chrono::duration<double>(end - start).count() * 1000 << " ms\n" <<std::endl;
     }
 

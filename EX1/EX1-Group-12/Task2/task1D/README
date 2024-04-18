@@ -1,0 +1,9 @@
+Task 2: 1D Decomposition
+
+Use the makefile to compile and link the source file main.cpp.
+
+The progam is executed with:
+
+./solverMPI 1D test 250 100 1.0 2.0
+
+(here only 1D is implemented.)

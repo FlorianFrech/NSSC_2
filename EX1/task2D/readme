@@ -1,0 +1,38 @@
+Remarks on the 2D decomposition:
+
+For the 2D decomposition the jacobi iteration was adapted based on the coordinates of the process in the cartesian topology:
+
+  Partition of the grid:
+  
+                BND Neumann North
+  ------------------------------------------
+  BND West | 2.1 |    2.3   | 2.2 | BND East
+  
+  BND West | 3.1 |    3.3   | 3.2 | BND East
+  
+  BND West | 1.1 |    1.3   | 1.2 | BND East
+  ------------------------------------------ 
+                BND Neumann South
+  
+The range of updated entries is adapted based on their position.
+For example, a process in 1.1 is not updating the first row (ghost layer) and the first two columns (ghost layer and dirichlet boundary layer). Since all subgrids have norhern, southern, eastern and western ghost layers, the processes workig on the western boundary have to start in the 3rd column.
+
+Processes not working on the left edge have to start in the second column and second row, thus different cases.
+
+-----------------------------
+Remainder Handling:
+
+Based on the given number of processes a cartesian topology is set up which results in a number of processes in x and y direction. Based on these numbers the total grid N x N is decomposed.
+
+In case of remainders, processes in the last row of the cartesian topology should take care of the row remainders and processes in the last column of the cartesian topology should take care of the rows remainder.
+
+------------------------------
+All subgrids are row-major coniguous double standard vectors.
+MPI Datatypes were introduced to facilitate the sending and receiving of columns.
+
+
+-------------------------------
+The merging of the subgrid could only be implemented for regular sizes, e.g.
+
+number of processes = 9
+N = 15
